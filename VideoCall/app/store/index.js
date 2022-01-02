@@ -1,8 +1,7 @@
-import {configureStore} from '@reduxjs/toolkit';
-import counterReducer from './slices/counterSlice';
+import {applyMiddleware, createStore} from 'redux';
+import thunk from 'redux-thunk';
+import reducer from './reducers';
 
-const store = configureStore({
-  reducer: counterReducer,
-});
+const store = createStore(reducer, applyMiddleware(thunk));
 
 export default store;

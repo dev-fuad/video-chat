@@ -7,15 +7,16 @@
  * @format
  */
 
-import React, {useEffect} from 'react';
 import type {Node} from 'react';
-import {SafeAreaView, Text} from 'react-native';
-import {mediaDevices} from 'react-native-webrtc';
+import React, {useEffect} from 'react';
+import {SafeAreaView, Text, StyleSheet, View} from 'react-native';
+import {mediaDevices, RTCView} from 'react-native-webrtc';
+import {useDispatch, useSelector} from 'react-redux';
+import {joinRoom} from '../../store/actions/mediaActions';
 
-function webRTC() {
+function webRTC(dispatch) {
   let isFront = true;
-  mediaDevices.enumerateDevices().then(sourceInfos => {
-    console.log(sourceInfos);
+  mediaDevices.enumerateDevices().then((sourceInfos) => {
     let videoSourceId;
     for (let i = 0; i < sourceInfos.length; i++) {
       const sourceInfo = sourceInfos[i];
@@ -37,26 +38,60 @@ function webRTC() {
           deviceId: videoSourceId,
         },
       })
-      .then(stream => {
-        // Got stream!
-        console.log(stream);
+      .then((stream) => {
+        dispatch(joinRoom(stream));
       })
-      .catch(error => {
+      .catch((error) => {
         // Log error
       });
   });
 }
 
 const HomeScreen: () => Node = () => {
+  const dispatch = useDispatch();
+  const mediaStream = useSelector((state) => state.media?.stream);
+
   useEffect(() => {
-    webRTC();
-  }, []);
+    webRTC(dispatch);
+  }, [dispatch]);
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={styles.container}>
       <Text>HomeScreen</Text>
+      <View style={styles.stage}>
+        {mediaStream ? (
+          <RTCView streamURL={mediaStream.toURL()} style={styles.screen} />
+        ) : (
+          <View style={styles.noScreen} />
+        )}
+      </View>
+      <View style={styles.streams} />
     </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  stage: {
+    flex: 1,
+    borderWidth: 5,
+    borderColor: '#0FF',
+  },
+  screen: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
+  noScreen: {
+    flex: 1,
+    backgroundColor: '#228',
+  },
+  streams: {
+    flex: 1,
+    borderWidth: 5,
+    borderColor: '#F55',
+  },
+});
 
 export default HomeScreen;
