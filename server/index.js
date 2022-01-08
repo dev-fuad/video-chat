@@ -7,6 +7,7 @@ const { ExpressPeerServer } = require('peer');
 
 const app = express();
 const server = http.createServer(app);
+const io = socketIO(server).sockets;
 
 app.use(express.json());
 
@@ -23,6 +24,12 @@ app.use('/peer', peerServer);
 
 io.on('connection', (socket) => {
   console.log('a user connected');
+  socket.on('join-room', ({roomID, userId}) => {
+    console.log(userId, ' is joining room ', roomID);
+    socket.join(roomID);
+    socket.to(roomID).broadcast.emit('user-connected', userId);
+  });
+  
   socket.on('disconnect', () => {
     console.log('user disconnected');
   });

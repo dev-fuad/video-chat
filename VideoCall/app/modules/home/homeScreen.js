@@ -9,7 +9,7 @@
 
 import type {Node} from 'react';
 import React, {useEffect} from 'react';
-import {SafeAreaView, Text, StyleSheet, View} from 'react-native';
+import {SafeAreaView, Text, StyleSheet, View, ScrollView} from 'react-native';
 import {mediaDevices, RTCView} from 'react-native-webrtc';
 import {useDispatch, useSelector} from 'react-redux';
 import {joinRoom} from '../../store/actions/mediaActions';
@@ -50,6 +50,7 @@ function webRTC(dispatch) {
 const HomeScreen: () => Node = () => {
   const dispatch = useDispatch();
   const mediaStream = useSelector((state) => state.media?.stream);
+  const mediaStreams = useSelector((state) => state.media?.streams);
 
   useEffect(() => {
     webRTC(dispatch);
@@ -65,7 +66,15 @@ const HomeScreen: () => Node = () => {
           <View style={styles.noScreen} />
         )}
       </View>
-      <View style={styles.streams} />
+      <ScrollView horizontal style={styles.streams}>
+        {mediaStreams?.map((stream, index) => (
+          <RTCView
+            key={`stream.id:${index}`}
+            streamURL={stream.toURL()}
+            style={styles.stream}
+          />
+        ))}
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -91,6 +100,11 @@ const styles = StyleSheet.create({
     flex: 1,
     borderWidth: 5,
     borderColor: '#F55',
+  },
+  stream: {
+    height: '100%',
+    aspectRatio: 1,
+    backgroundColor: 'green',
   },
 });
 
