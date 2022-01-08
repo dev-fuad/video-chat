@@ -1,7 +1,6 @@
 const express = require('express');
 const http = require('http');
 const socketIO = require('socket.io');
-const morgan = require('morgan');
 
 const { ExpressPeerServer } = require('peer');
 
